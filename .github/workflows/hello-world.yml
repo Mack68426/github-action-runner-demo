@@ -1,0 +1,25 @@
+name: Deploy Hello World Web Page
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted  # 執行在本機 Windows runner
+    steps:
+      - name: 檢出程式碼
+        uses: actions/checkout@v2
+
+      - name: 構建 Docker 映像
+        run: docker build -t hello-world-image .
+
+      - name: 停止並移除舊容器 (如果已存在)
+        run: |
+          docker stop hello-world-container || echo "容器不存在"
+          docker rm hello-world-container || echo "容器不存在"
+
+      - name: 啟動 Docker 容器
+        run: |
+          docker run -d -p 8000:80 --name hello-world-container hello-world-image
